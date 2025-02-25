@@ -539,3 +539,13 @@
   </channel>
 </rss>
 
+
+
+🔎 Stimulus JS
+<div data-controller="my-controller another-controller" data-my-controller-class-list-class="flex align-left">
+  <div data-action="click->my-controller#doSomething:self:prevent" data-my-controller-bar-param="baz">Click me!</div>
+  <div data-action="focus->my-controller#doSomethingElse blur->another-controller#foo:passive">Focus me!</div>
+  <div data-my-controller-another-controller-outlet="#body"></div>
+  <div data-my-controller-target="last-div" data-my-controller-id-value="1234"></div>
+</div>
+
