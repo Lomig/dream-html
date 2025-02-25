@@ -1131,3 +1131,85 @@ module Hx : sig
   [@@ocaml.deprecated "See https://htmx.org/attributes/hx-on/#hx-on-deprecated"]
   (** Note that the value of this attribute is not escaped. *)
 end
+
+(** {2 Stimulus JS} *)
+
+(** {{:https://stimulus.hotwired.dev}Stimulus} support
+
+    The attributes in this module are arranged in the same order as on the
+    reference page linked above.
+
+    Remember that you will also need the Stimulus script itself. The recommended
+    way to get it is to
+    {{:https://stimulus.hotwired.dev/handbook/installing}import or bundle it}
+    and place it in your static assets directory, managed by
+    {{:https://yawaramin.github.io/dream-html/dream-html/Dream_html/#dreamwork}dreamwork}
+    so that it is properly cached and version-hashed by its contents. *)
+module Stimulus : sig
+  (** {3 Controllers} *)
+
+  val controller : string list -> attr
+  (** [controller list] generates a [data-controller] attribute with the given
+      list of controller names.
+      @raise Failure if any controller name is invalid. *)
+
+  (** {3 Actions} *)
+
+  (** Defines available options for Stimulus actions. *)
+  type action_option =
+    | Capture
+        (** Indicates the event should be captured in the capturing phase. *)
+    | Once  (** Ensures the action runs only once. *)
+    | Passive
+        (** Improves performance by marking the event listener as passive. *)
+    | NotPassive  (** Explicitly marks the event listener as not passive. *)
+    | Stop  (** Stops event propagation. *)
+    | Prevent  (** Calls [preventDefault] on the event. *)
+    | Self
+        (** Ensures the event is handled only if it originated from the element
+            itself. *)
+
+  val action : ?options:action_option list -> string -> string -> string -> attr
+  (** [action ?options event controller action] generates a [data-action]
+      attribute for the given event, controller, and action.
+      @param options Optional action options.
+      @raise Failure if the controller name is invalid. *)
+
+  val actions : (string * string * string * action_option list) list -> attr
+  (** [actions action_list] generates a [data-action] attribute for multiple
+      actions. Each action is a tuple [(event, controller, action, options)].
+      @raise Failure if any controller name is invalid. *)
+
+  val param : string -> string -> string -> attr
+  (** [param controller name value] generates a [data-*] parameter attribute for
+      a Stimulus controller to be used during an action. Example:
+      [data-controller-name-param].
+      @raise Failure if the controller or parameter name is invalid. *)
+
+  (** {3 Targets} *)
+
+  val target : string -> string -> attr
+  (** [target controller name] generates a [data-*] target attribute for a
+      Stimulus controller. Example: [data-controller-target].
+      @raise Failure if the controller name is invalid. *)
+
+  (** {3 Outlets} *)
+  val outlet : string -> string -> string -> attr
+  (** [outlet controller outlet css_selector] generates a [data-*] outlet
+      attribute for a Stimulus controller. Example: [data-controller-outlet].
+      @raise Failure if the controller or outlet name is invalid.
+
+      Note that the values of these attributes are not escaped.*)
+
+  (** {3 Values} *)
+  val value : string -> string -> string -> attr
+  (** [value controller name value] generates a [data-*] value attribute for a
+      Stimulus controller. Example: [data-controller-name-value].
+      @raise Failure if the controller or value name is invalid. *)
+
+  (** {3 Classes} *)
+  val class_ : string -> string -> string list -> attr
+  (** [class_ controller name values] generates a [data-*] class attribute for a
+      Stimulus controller. Example: [data-controller-name-class].
+      @raise Failure if the controller or class name is invalid. *)
+end

@@ -384,3 +384,25 @@ let () =
               guid []
                 "http://www.nasa.gov/press-release/louisiana-students-to-hear-from-nasa-astronauts-aboard-space-station"
             ] ] ]
+
+let () =
+  test_html "Stimulus JS"
+  @@
+  let open HTML in
+  let open Stimulus in
+  div
+    [ controller ["my-controller"; "another-controller"];
+      class_ "my-controller" "class-list" ["flex"; "align-left"] ]
+    [ div
+        [ action ~options:[Self; Prevent] "click" "my-controller" "doSomething";
+          param "my-controller" "bar" "baz" ]
+        [txt "Click me!"];
+      div
+        [ actions
+            [ "focus", "my-controller", "doSomethingElse", [];
+              "blur", "another-controller", "foo", [Passive] ] ]
+        [txt "Focus me!"];
+      div [outlet "my-controller" "another-controller" "#body"] [];
+      div
+        [target "my-controller" "last-div"; value "my-controller" "id" "1234"]
+        [] ]

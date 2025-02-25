@@ -1096,3 +1096,92 @@ module MathML = struct
   let munderover = std_tag "munderover"
   let semantics = std_tag "semantics"
 end
+
+module Stimulus = struct
+  type action_option =
+    | Capture
+    | Once
+    | Passive
+    | NotPassive
+    | Stop
+    | Prevent
+    | Self
+
+  let action_option_to_string = function
+    | Capture -> ":capture"
+    | Once -> ":once"
+    | Passive -> ":passive"
+    | NotPassive -> ":!Passive"
+    | Stop -> ":stop"
+    | Prevent -> ":prevent"
+    | Self -> ":self"
+
+  let is_valid_identifier id =
+    let is_valid_char c = c = '-' || c >= 'a' || c <= 'z' in
+    String.for_all is_valid_char id
+
+  let controller list =
+    if not (List.for_all is_valid_identifier list) then
+      failwith @@ "Invalid Controller name in " ^ String.concat " " list;
+    string_attr "data-controller" "%s" (String.concat " " list)
+
+  let action ?(options = []) event controller action =
+    if not (is_valid_identifier controller) then
+      failwith @@ "Invalid Controller name " ^ controller;
+    let action_string = event ^ "->" ^ controller ^ "#" ^ action in
+    let opts =
+      options |> List.map action_option_to_string |> String.concat ""
+    in
+    string_attr "data-action" "%s" @@ action_string ^ opts
+
+  let actions action_list =
+    let actions_string =
+      List.map
+        (fun (event, controller, action, options) ->
+          if not (is_valid_identifier controller) then
+            failwith @@ "Invalid Controller name " ^ controller;
+          let action_string = event ^ "->" ^ controller ^ "#" ^ action in
+          let opts =
+            options |> List.map action_option_to_string |> String.concat ""
+          in
+          action_string ^ opts)
+        action_list
+    in
+    string_attr "data-action" "%s" @@ String.concat " " actions_string
+
+  let param controller name value =
+    if not (is_valid_identifier controller) then
+      failwith @@ "Invalid Controller name " ^ controller;
+    if not (is_valid_identifier name) then
+      failwith @@ "Invalid Param name " ^ name;
+    string_attr ("data-" ^ controller ^ "-" ^ name ^ "-param") "%s" value
+
+  let target controller name =
+    if not (is_valid_identifier controller) then
+      failwith @@ "Invalid Controller name " ^ controller;
+    string_attr ("data-" ^ controller ^ "-target") "%s" name
+
+  let outlet controller outlet css_selector =
+    if not (is_valid_identifier controller) then
+      failwith @@ "Invalid Controller name " ^ controller;
+    if not (is_valid_identifier outlet) then
+      failwith @@ "Invalid Outlet name " ^ outlet;
+    string_attr ~raw:true
+      ("data-" ^ controller ^ "-" ^ outlet ^ "-outlet")
+      "%s" css_selector
+
+  let value controller name value =
+    if not (is_valid_identifier controller) then
+      failwith @@ "Invalid Controller name " ^ controller;
+    if not (is_valid_identifier name) then
+      failwith @@ "Invalid Value name " ^ name;
+    string_attr ("data-" ^ controller ^ "-" ^ name ^ "-value") "%s" value
+
+  let class_ controller name values =
+    if not (is_valid_identifier controller) then
+      failwith @@ "Invalid Controller name " ^ controller;
+    if not (is_valid_identifier name) then
+      failwith @@ "Invalid Class name " ^ name;
+    string_attr ("data-" ^ controller ^ "-" ^ name ^ "-class") "%s"
+    @@ String.concat " " values
+end
